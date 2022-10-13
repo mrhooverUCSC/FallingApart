@@ -1,0 +1,6 @@
+Unity Movement Tutorial: https://youtu.be/f473C43s8nE
+Broken Vector Low Poly Dungeon: https://assetstore.unity.com/packages/3d/environments/dungeons/ultimate-low-poly-dungeon-143535
+
+Symbols: 
+Astrolabe https://game-icons.net/1x1/caro-asercion/astrolabe.html#download
+Pause Button https://game-icons.net/1x1/guard13007/pause-button.html#download
