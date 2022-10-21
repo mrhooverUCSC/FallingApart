@@ -8,7 +8,10 @@ public class PlayerControllerPieces : PlayerController
 {
     //Copy of the body
     [Header("Pieces")]
-    [SerializeField] Body parts;
+    [SerializeField] Body parts; //keeps track off the pieces
+    [SerializeField] GameObject controlPart;
+    bool controlPartInUse; 
+
     public override void Start()
     {
         base.Start();
@@ -17,6 +20,28 @@ public class PlayerControllerPieces : PlayerController
     public override void Update()
     {
         base.Update();
+        if (Input.GetMouseButtonDown(1) && controlPart != null)
+        {
+            controlPartInUse = !controlPartInUse;
+            Debug.Log(controlPartInUse);
+        }
+    }
+
+    protected override void MovePlayer()
+    {
+        moveDir = orientation.forward * verticalInput + orientation.right * horizontalInput;
+        if (controlPartInUse)
+        {
+            if (grounded) { controlPart.GetComponent<CharacterController>().SimpleMove(moveDir.normalized * moveSpeed * 10f); }
+            else if (!grounded) { controlPart.GetComponent<CharacterController>().SimpleMove(moveDir.normalized * moveSpeed * 10f * airMultiplier); }
+            if (grounded) { GetComponent<CharacterController>().SimpleMove(Vector3.zero); } //Character controller does not like having no input for some reason
+            else if (!grounded) { GetComponent<CharacterController>().SimpleMove(Vector3.zero); }
+        }
+        else
+        {
+            if (grounded) { GetComponent<CharacterController>().SimpleMove(moveDir.normalized * moveSpeed * 10f); }
+            else if (!grounded) { GetComponent<CharacterController>().SimpleMove(moveDir.normalized * moveSpeed * 10f * airMultiplier); }
+        }
     }
 
     public override void interact(Interactable i) //need to check if you have the right pieces to interact with it

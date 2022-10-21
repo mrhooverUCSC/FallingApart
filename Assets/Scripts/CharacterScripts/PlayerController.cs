@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour
     public float playerHeight;
     public LayerMask CanJumpOff;
     public LayerMask IsInteractable;
-    bool grounded;
+    protected bool grounded;
 
     [Header("Keybinds")]
     public KeyCode jumpKey = KeyCode.Space;
@@ -31,10 +31,10 @@ public class PlayerController : MonoBehaviour
     private Rigidbody heldRB;
 
     //movement input
-    float horizontalInput;
-    float verticalInput;
+    protected float horizontalInput;
+    protected float verticalInput;
     //movement values
-    public Vector3 moveDir { get; private set; }
+    public Vector3 moveDir { get; protected set; }
     public Rigidbody rb { get; private set; }
 
     public virtual void Start()
@@ -56,15 +56,16 @@ public class PlayerController : MonoBehaviour
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
 
+        //JUMPING DOES NOT WORK WITH THE NEW PLAYER CONTROLLER YET. WIP
         //check for jumping
         //Debug.Log("jump key detected | jumpReady: " + jumpReady + " | grounded: " + grounded);
-        if(Input.GetKey(jumpKey) && jumpReady && grounded) //IF JUMP IS NOT WORKING, REMEMBER TO SET GROUND TO "isGround"
+        /*if(Input.GetKey(jumpKey) && jumpReady && grounded) //IF JUMP IS NOT WORKING, REMEMBER TO SET GROUND TO "isGround"
         {
             Debug.Log("Jumping");
             jumpReady = false;
             Jump();
             Invoke(nameof(ResetJump), jumpCooldown); //reset jump after jump cooldown
-        }
+        }*/
 
         //highlight, and if highlight grabbing stuff
         highlightInteract();
@@ -81,7 +82,7 @@ public class PlayerController : MonoBehaviour
         hold();
     }
 
-    private void MovePlayer()
+    protected virtual void MovePlayer()
     {
         moveDir = orientation.forward * verticalInput + orientation.right * horizontalInput;
 

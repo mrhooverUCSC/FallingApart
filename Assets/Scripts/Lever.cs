@@ -21,14 +21,16 @@ public class Lever : Interactable
         if (inMotion == false){
             if (type == LeverType.Door)
             {
-                GetComponent<Animator>().SetTrigger("Activate");
+                //GetComponent<Animator>().SetTrigger("Activate");
             }
             if (!partInUse)
             {
+                GetComponent<Animator>().SetBool("Open", true);
                 partInUse = true;
             }
             else
             {
+                GetComponent<Animator>().SetBool("Open", false);
                 partInUse = false;
             }
         }
@@ -37,7 +39,14 @@ public class Lever : Interactable
     }
     public void openDoor() //opens the door, gets called by the animation
     {
-        target.GetComponent<Animator>().SetTrigger("Open");
+        //Debug.Log("open door called");
+        target.GetComponent<Animator>().SetBool("Open", true);
+        inMotion = false;
+    }
+    public void closeDoor()
+    {
+        //Debug.Log("close door called");
+        target.GetComponent<Animator>().SetBool("Open", false);
         inMotion = false;
     }
 }
