@@ -119,13 +119,13 @@ public class PlayerController : MonoBehaviour
     private void highlightInteract()
     {
         RaycastHit hit;
-        //Debug.DrawRay(transform.position + new Vector3(0, playerHeight * .64f, 0), Camera.main.transform.forward * 3, Color.cyan, .5f, true); ///visualization
-        if (Physics.Raycast(transform.position + new Vector3(0, playerHeight * .64f, 0), Camera.main.transform.forward, out hit, 3, IsInteractable))
+        //Debug.DrawRay(transform.position + new Vector3(0, playerHeight * .64f, 0), Camera.main.transform.forward * 3, Color.cyan, .5f, true); //visualization of interaction raycast
+        if (Physics.Raycast(transform.position + new Vector3(0, playerHeight * .64f, 0), Camera.main.transform.forward, out hit, 3, IsInteractable)) //if something is in that raycast,
         {
             //Debug.Log("detected " + hit.collider.gameObject.ToString()); //outputs what we're looking at
-            if (highlight != hit.collider.gameObject) //if the thing is not what we're highlighting, change our highlight
+            if (highlight != hit.collider.gameObject) //if the thing is not what we're highlighting, change our highlight to what are looking at
             {
-                if (highlight) //if there's something currently highlighted remove it
+                if (highlight) //if there's something currently highlighted, remove it
                 {
                     highlight.gameObject.GetComponent<Outline>().OutlineColor = new Color(1,1,1,0);
                 }

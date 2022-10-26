@@ -34,18 +34,21 @@ public class PlayerControllerPieces : PlayerController
                 if(controlPart == BodyPart.RIGHTLEG) //if currently controlling right ley, make it interactable
                 {
                     controlPartGO.layer = LayerMask.NameToLayer("isInteractable");
+                    controlPartGO.GetComponent<Outline>().OutlineColor = new Color(1,1,1,0);
                 }
                 controlPartGO = parts.controlPart(BodyPart.LEFTLEG, gameObject); //try and get the left leg
                 if (controlPartGO != null) //if you got it, 
                 {
                     controlPart = BodyPart.LEFTLEG; //record the left leg being controlled,
                     controlPartGO.layer = LayerMask.NameToLayer("Default"); //and make it ungrabbable
+                    controlPartGO.GetComponent<Outline>().OutlineColor = Color.yellow;
                 }
             }
             else //if controlling left leg, snap back to body
             {
                 controlPart = BodyPart.HEAD;
                 controlPartGO.layer = LayerMask.NameToLayer("isInteractable");
+                controlPartGO.GetComponent<Outline>().OutlineColor = new Color(1, 1, 1, 0);
                 controlPartGO = null;
             }
         }
@@ -56,18 +59,21 @@ public class PlayerControllerPieces : PlayerController
                 if (controlPart == BodyPart.LEFTLEG)
                 {
                     controlPartGO.layer = LayerMask.NameToLayer("isInteractable");
+                    controlPartGO.GetComponent<Outline>().OutlineColor = new Color(1, 1, 1, 0);
                 }
                 controlPartGO = parts.controlPart(BodyPart.RIGHTLEG, gameObject);
                 if (controlPartGO != null)
                 {
                     controlPart = BodyPart.RIGHTLEG;
                     controlPartGO.layer = LayerMask.NameToLayer("Default");
+                    controlPartGO.GetComponent<Outline>().OutlineColor = Color.yellow;
                 }
             }
             else //if controlling right leg, snap back to body
             {
                 controlPart = BodyPart.HEAD;
                 controlPartGO.layer = LayerMask.NameToLayer("isInteractable");
+                controlPartGO.GetComponent<Outline>().OutlineColor = new Color(1, 1, 1, 0);
                 controlPartGO = null;
             }
         }
