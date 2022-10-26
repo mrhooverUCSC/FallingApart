@@ -14,7 +14,7 @@ public class PressurePlate : Interactable
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("enter");
+        //Debug.Log("enter");
         if (other.tag == "Player")
         {
             target.GetComponent<Animator>().SetBool("Open", true);
@@ -22,7 +22,7 @@ public class PressurePlate : Interactable
     }
     private void OnTriggerExit(Collider other)
     {
-        Debug.Log("exit");
+        //Debug.Log("exit");
         if (other.tag == "Player")
         {
             target.GetComponent<Animator>().SetBool("Open", false);

@@ -36,12 +36,15 @@ public class PlayerController : MonoBehaviour
     //movement values
     public Vector3 moveDir { get; protected set; }
     public Rigidbody rb { get; private set; }
+    //CharacterController
+    protected CharacterController characterController;
 
     public virtual void Start()
     {
         //player
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
+        characterController = GetComponent<CharacterController>();
         //held position setup
     }
 
@@ -86,8 +89,8 @@ public class PlayerController : MonoBehaviour
     {
         moveDir = orientation.forward * verticalInput + orientation.right * horizontalInput;
 
-        if (grounded) { GetComponent<CharacterController>().SimpleMove(moveDir.normalized * moveSpeed * 10f); }
-        else if (!grounded) { GetComponent<CharacterController>().SimpleMove(moveDir.normalized * moveSpeed * 10f * airMultiplier); }
+        if (grounded) { characterController.SimpleMove(moveDir.normalized * moveSpeed * 10f); }
+        else if (!grounded) { characterController.SimpleMove(moveDir.normalized * moveSpeed * 10f * airMultiplier); }
     }
 
     private void SpeedControl()

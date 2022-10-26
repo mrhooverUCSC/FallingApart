@@ -5,6 +5,7 @@ public class Interactable : MonoBehaviour
 {
     public BodyPart partNeeded;
     public bool partInUse; //false if no body part on it, true if there is a body part on it
+    public bool loosePart;
     // Start is called before the first frame update
     void Start()
     {
@@ -20,5 +21,9 @@ public class Interactable : MonoBehaviour
     public virtual void interact()
     {
         Debug.Log("bye");
+        if (loosePart)
+        {
+            Destroy(gameObject);
+        }
     }
 }
