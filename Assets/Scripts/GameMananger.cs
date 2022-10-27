@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public enum tileColor
 {
@@ -14,9 +15,10 @@ public enum tileColor
 public class GameMananger : MonoBehaviour
 {
     public static GameMananger instance; //singleton
-    [SerializeField] Text gameOver;
+    [SerializeField] GameObject gameOver;
     [SerializeField] GameObject tileDisplay;
     [SerializeField] GameObject colorDoor;
+    [SerializeField] PlayerController player;
     tileColor[] combo = { tileColor.RED, tileColor.GREEN, tileColor.BLUE, tileColor.GREEN, tileColor.YELLOW, tileColor.BLACK, tileColor.RED, tileColor.RED, tileColor.YELLOW, tileColor.BLUE, tileColor.RED, tileColor.YELLOW, tileColor.RED, tileColor.BLUE, tileColor.BLACK, tileColor.BLUE, tileColor.GREEN, tileColor.BLUE};
     private int position = 0;
 
@@ -43,10 +45,10 @@ public class GameMananger : MonoBehaviour
 
     public void colorTileTrigger(tileColor c)
     {
-        Debug.Log(c);
+        //Debug.Log(c);
         if(c != combo[position])
         {
-            gameOver.text = "GameOver";
+            StartCoroutine(GameOver());
         }
         else
         {
@@ -58,6 +60,13 @@ public class GameMananger : MonoBehaviour
                 colorDoor.GetComponent<Animator>().SetBool("Open", true);
             }
         }
+    }
+    public IEnumerator GameOver()
+    {
+        gameOver.SetActive(true);
+        Destroy(player.GetComponent<CharacterController>());
+        yield return new WaitForSeconds(3.0f);
+        SceneManager.LoadScene("Title");
     }
     public Color getColor(bool on, tileColor color) //returns a "proper" color for tile color display
     {

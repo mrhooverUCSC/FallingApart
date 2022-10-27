@@ -26,7 +26,7 @@ public class TitleManager : MonoBehaviour
     }
     public void EnterLevel()
     {
-        SceneManager.LoadScene("MainScene");
+        SceneManager.LoadScene("FallingApart");
         level = level_name.starting;
     }
 
