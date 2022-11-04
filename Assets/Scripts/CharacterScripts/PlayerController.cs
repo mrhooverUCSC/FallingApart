@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
     public float moveSpeed; //movespeed
 
     public Transform orientation;
+    [SerializeField] Transform cameraPos; //for raycasting from
 
     [Header("Jump")]
     public float jumpForce;
@@ -23,6 +25,10 @@ public class PlayerController : MonoBehaviour
 
     [Header("Keybinds")]
     public KeyCode jumpKey = KeyCode.Space;
+
+    [Header("UI")]
+    [SerializeField] private GameObject tutorialInteractImage;
+    private bool tutorialInteractImageBool = false;
 
     //highlighted object reference
     private GameObject highlight;
@@ -120,7 +126,9 @@ public class PlayerController : MonoBehaviour
     {
         RaycastHit hit;
         //Debug.DrawRay(transform.position + new Vector3(0, playerHeight * .64f, 0), Camera.main.transform.forward * 3, Color.cyan, .5f, true); //visualization of interaction raycast
-        if (Physics.Raycast(transform.position + new Vector3(0, playerHeight * .64f, 0), Camera.main.transform.forward, out hit, 3, IsInteractable)) //if something is in that raycast,
+        Debug.DrawRay(cameraPos.position, cameraPos.transform.forward * 3, Color.cyan, .5f, true);
+        //if (Physics.Raycast(transform.position + new Vector3(0, playerHeight * .64f, 0), Camera.main.transform.forward, out hit, 3, IsInteractable)) //if something is in that raycast,
+        if(Physics.Raycast(cameraPos.position, cameraPos.transform.forward, out hit, 3, IsInteractable))
         {
             //Debug.Log("detected " + hit.collider.gameObject.ToString()); //outputs what we're looking at
             if (highlight != hit.collider.gameObject) //if the thing is not what we're highlighting, change our highlight to what are looking at
@@ -138,6 +146,18 @@ public class PlayerController : MonoBehaviour
         {
             highlight.gameObject.GetComponent<Outline>().OutlineColor = new Color(1, 1, 1, 0);
             highlight = null;
+        }
+
+        //tutorial checks
+        if (highlight && highlight.tag == "TutorialSwitch" && !tutorialInteractImageBool) //if it's the first switch, turn on the tutorial image
+        {
+            tutorialInteractImage.SetActive(true);
+            tutorialInteractImageBool = true;
+        }
+        else if(highlight && highlight.tag != "TutorialSwitch" && tutorialInteractImageBool) //if not highlighting that first switch, turn it off
+        {
+            tutorialInteractImage.SetActive(false);
+            tutorialInteractImageBool = false;
         }
 
         //grab object if button is pressed, nothing is held, and an object is highlighted

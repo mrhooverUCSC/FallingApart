@@ -13,6 +13,7 @@ public class PlayerControllerPieces : PlayerController
     [SerializeField] Body parts; //keeps track off the pieces
     GameObject controlPartGO = null;
     BodyPart controlPart = BodyPart.HEAD;
+    bool[] tutorialTriggers = new bool[1]; //trigger 1: no body UI until first thing pulled
 
     public override void Start()
     {
@@ -27,54 +28,57 @@ public class PlayerControllerPieces : PlayerController
 
     private void ControlLegs()
     {
-        if (Input.GetKeyDown(KeyCode.H))//Input.GetMouseButtonDown(0))
+        if (tutorialTriggers[0]) //only allow leg control if the player has opened that lever
         {
-            if (controlPart != BodyPart.LEFTLEG) //if not controlling the left leg, try and control it
+            if (Input.GetKeyDown(KeyCode.H))//Input.GetMouseButtonDown(0))
             {
-                if(controlPart == BodyPart.RIGHTLEG) //if currently controlling right ley, make it interactable
+                if (controlPart != BodyPart.LEFTLEG) //if not controlling the left leg, try and control it
                 {
-                    controlPartGO.layer = LayerMask.NameToLayer("isInteractable");
-                    controlPartGO.GetComponent<Outline>().OutlineColor = new Color(1,1,1,0);
+                    if (controlPart == BodyPart.RIGHTLEG) //if currently controlling right ley, make it interactable
+                    {
+                        controlPartGO.layer = LayerMask.NameToLayer("isInteractable");
+                        controlPartGO.GetComponent<Outline>().OutlineColor = new Color(1, 1, 1, 0);
+                    }
+                    controlPartGO = parts.controlPart(BodyPart.LEFTLEG, gameObject); //try and get the left leg
+                    if (controlPartGO != null) //if you got it, 
+                    {
+                        controlPart = BodyPart.LEFTLEG; //record the left leg being controlled,
+                        controlPartGO.layer = LayerMask.NameToLayer("Default"); //and make it ungrabbable
+                        controlPartGO.GetComponent<Outline>().OutlineColor = Color.yellow;
+                    }
                 }
-                controlPartGO = parts.controlPart(BodyPart.LEFTLEG, gameObject); //try and get the left leg
-                if (controlPartGO != null) //if you got it, 
+                else //if controlling left leg, snap back to body
                 {
-                    controlPart = BodyPart.LEFTLEG; //record the left leg being controlled,
-                    controlPartGO.layer = LayerMask.NameToLayer("Default"); //and make it ungrabbable
-                    controlPartGO.GetComponent<Outline>().OutlineColor = Color.yellow;
-                }
-            }
-            else //if controlling left leg, snap back to body
-            {
-                controlPart = BodyPart.HEAD;
-                controlPartGO.layer = LayerMask.NameToLayer("isInteractable");
-                controlPartGO.GetComponent<Outline>().OutlineColor = new Color(1, 1, 1, 0);
-                controlPartGO = null;
-            }
-        }
-        else if (Input.GetKeyDown(KeyCode.J))//Input.GetMouseButtonDown(1))
-        {
-            if (controlPart != BodyPart.RIGHTLEG) //if not controlling the right leg, try and control it
-            {
-                if (controlPart == BodyPart.LEFTLEG)
-                {
+                    controlPart = BodyPart.HEAD;
                     controlPartGO.layer = LayerMask.NameToLayer("isInteractable");
                     controlPartGO.GetComponent<Outline>().OutlineColor = new Color(1, 1, 1, 0);
-                }
-                controlPartGO = parts.controlPart(BodyPart.RIGHTLEG, gameObject);
-                if (controlPartGO != null)
-                {
-                    controlPart = BodyPart.RIGHTLEG;
-                    controlPartGO.layer = LayerMask.NameToLayer("Default");
-                    controlPartGO.GetComponent<Outline>().OutlineColor = Color.yellow;
+                    controlPartGO = null;
                 }
             }
-            else //if controlling right leg, snap back to body
+            else if (Input.GetKeyDown(KeyCode.G))//Input.GetMouseButtonDown(1))
             {
-                controlPart = BodyPart.HEAD;
-                controlPartGO.layer = LayerMask.NameToLayer("isInteractable");
-                controlPartGO.GetComponent<Outline>().OutlineColor = new Color(1, 1, 1, 0);
-                controlPartGO = null;
+                if (controlPart != BodyPart.RIGHTLEG) //if not controlling the right leg, try and control it
+                {
+                    if (controlPart == BodyPart.LEFTLEG)
+                    {
+                        controlPartGO.layer = LayerMask.NameToLayer("isInteractable");
+                        controlPartGO.GetComponent<Outline>().OutlineColor = new Color(1, 1, 1, 0);
+                    }
+                    controlPartGO = parts.controlPart(BodyPart.RIGHTLEG, gameObject);
+                    if (controlPartGO != null)
+                    {
+                        controlPart = BodyPart.RIGHTLEG;
+                        controlPartGO.layer = LayerMask.NameToLayer("Default");
+                        controlPartGO.GetComponent<Outline>().OutlineColor = Color.yellow;
+                    }
+                }
+                else //if controlling right leg, snap back to body
+                {
+                    controlPart = BodyPart.HEAD;
+                    controlPartGO.layer = LayerMask.NameToLayer("isInteractable");
+                    controlPartGO.GetComponent<Outline>().OutlineColor = new Color(1, 1, 1, 0);
+                    controlPartGO = null;
+                }
             }
         }
     }
@@ -115,6 +119,10 @@ public class PlayerControllerPieces : PlayerController
         if (!i.partInUse)
         {
             parts.usePart(i.partNeeded);
+            if(tutorialTriggers[0] == false)
+            {
+                tutorialTriggers[0] = true;
+            }
         }
         else
         {

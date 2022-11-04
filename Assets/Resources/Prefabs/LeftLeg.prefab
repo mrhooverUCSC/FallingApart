@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: -4367174418947168237}
   m_Layer: 8
   m_Name: LeftLeg
-  m_TagString: Player
+  m_TagString: PlayerPiece
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -136,3 +136,6 @@ MonoBehaviour:
   partNeeded: 0
   partInUse: 1
   loosePart: 1
+  onDestroyEvent:
+    m_PersistentCalls:
+      m_Calls: []

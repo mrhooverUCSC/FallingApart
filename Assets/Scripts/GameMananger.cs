@@ -19,7 +19,7 @@ public class GameMananger : MonoBehaviour
     [SerializeField] GameObject tileDisplay;
     [SerializeField] GameObject colorDoor;
     [SerializeField] PlayerController player;
-    tileColor[] combo = { tileColor.RED, tileColor.GREEN, tileColor.BLUE, tileColor.GREEN, tileColor.YELLOW, tileColor.BLACK, tileColor.RED, tileColor.RED, tileColor.YELLOW, tileColor.BLUE, tileColor.RED, tileColor.YELLOW, tileColor.RED, tileColor.BLUE, tileColor.BLACK, tileColor.BLUE, tileColor.GREEN, tileColor.BLUE};
+    tileColor[] combo = { tileColor.RED, tileColor.GREEN, tileColor.BLUE, tileColor.GREEN, tileColor.YELLOW, tileColor.BLACK, tileColor.RED, tileColor.RED, tileColor.YELLOW, tileColor.BLUE, tileColor.RED, tileColor.YELLOW, tileColor.RED, tileColor.BLUE, tileColor.BLACK, tileColor.BLUE};
     private int position = 0;
 
     //singleton
@@ -65,6 +65,8 @@ public class GameMananger : MonoBehaviour
     {
         gameOver.SetActive(true);
         Destroy(player.GetComponent<CharacterController>());
+        Cursor.lockState = CursorLockMode.None; //unlock mouse before going back to main menu
+        Cursor.visible = true;
         yield return new WaitForSeconds(3.0f);
         SceneManager.LoadScene("Title");
     }
@@ -86,6 +88,10 @@ public class GameMananger : MonoBehaviour
         {
             return new Color(1, 1, 0, 1);
         }
+        else if (on && color == tileColor.BLACK)
+        {
+            return Color.black;
+        }
         else if (!on && color == tileColor.RED)
         {
             return new Color(.5f, 0, 0, 1);
@@ -101,6 +107,10 @@ public class GameMananger : MonoBehaviour
         else if (!on && color == tileColor.YELLOW)
         {
             return new Color(0.6f, 0.6f, 0, 1);
+        }
+        else if (!on && color == tileColor.BLACK)
+        {
+            return new Color(0.2f, 0.2f, 0.2f, 1);
         }
         return Color.black;
     }

@@ -29,6 +29,7 @@ public class Body : MonoBehaviour
     GameObject rightLegPrefab;
     GameObject leftLegPrefab;
     ControlledPart cp = ControlledPart.BODY; //keeps track of the currently controlled part
+    bool hidden = true;
     //legs are individual, true is on, 
     BodyPartState leftArm = BodyPartState.ON;
     BodyPartState rightArm = BodyPartState.ON;
@@ -41,6 +42,7 @@ public class Body : MonoBehaviour
     GameObject rightArmGO;
     GameObject leftArmGO;
     //UI images are children. Get them with GetChild: 0 - left arm, 1 - right arm, 2 - left leg, 3 - right leg
+    //
     public void Start()
     {
         rightLegPrefab = Resources.Load<GameObject>("Prefabs/RightLeg");
@@ -142,21 +144,14 @@ public class Body : MonoBehaviour
                 leftLeg = BodyPartState.OFF;
                 gameObject.SetActive(true);
                 transform.GetChild(2).GetComponent<Image>().color = Color.red;
+                transform.GetChild(6).GetComponent<Text>().enabled = false;
             }
             else if (rightLeg == BodyPartState.ON)
             {
                 rightLeg = BodyPartState.OFF;
                 gameObject.SetActive(true);
                 transform.GetChild(3).GetComponent<Image>().color = Color.red;
-            }
-        }
-        else if (bp == BodyPart.RIGHTLEG)
-        {
-            if (rightLeg == BodyPartState.ON)
-            {
-                rightLeg = BodyPartState.OFF;
-                gameObject.SetActive(true);
-                transform.GetChild(3).GetComponent<Image>().color = Color.red;
+                transform.GetChild(7).GetComponent<Text>().enabled = false;
             }
         }
         else if (bp == BodyPart.LEFTLEG)
@@ -166,6 +161,17 @@ public class Body : MonoBehaviour
                 leftLeg = BodyPartState.OFF;
                 gameObject.SetActive(true);
                 transform.GetChild(2).GetComponent<Image>().color = Color.red;
+                transform.GetChild(6).GetComponent<Text>().enabled = false;
+            }
+        }
+        else if (bp == BodyPart.RIGHTLEG)
+        {
+            if (rightLeg == BodyPartState.ON)
+            {
+                rightLeg = BodyPartState.OFF;
+                gameObject.SetActive(true);
+                transform.GetChild(3).GetComponent<Image>().color = Color.red;
+                transform.GetChild(7).GetComponent<Text>().enabled = false;
             }
         }
     }
@@ -190,21 +196,25 @@ public class Body : MonoBehaviour
             {
                 leftLeg = BodyPartState.ON;
                 transform.GetChild(2).GetComponent<Image>().color = Color.white;
+                transform.GetChild(6).GetComponent<Text>().enabled = true;
             }
             else if(leftLeg == BodyPartState.CONTROLLED)
             {
                 leftLeg = BodyPartState.ON;
                 transform.GetChild(2).GetComponent<Image>().color = Color.white;
+                transform.GetChild(6).GetComponent<Text>().enabled = true;
             }
             else if (rightLeg == BodyPartState.OFF)
             {
                 rightLeg = BodyPartState.ON;
                 transform.GetChild(3).GetComponent<Image>().color = Color.white;
+                transform.GetChild(7).GetComponent<Text>().enabled = true;
             }
             else if(rightLeg == BodyPartState.CONTROLLED)
             {
                 rightLeg = BodyPartState.ON;
                 transform.GetChild(3).GetComponent<Image>().color = Color.white;
+                transform.GetChild(7).GetComponent<Text>().enabled = true;
             }
         }
         else if (bp == BodyPart.LEFTLEG)
@@ -213,11 +223,13 @@ public class Body : MonoBehaviour
             {
                 leftLeg = BodyPartState.ON;
                 transform.GetChild(2).GetComponent<Image>().color = Color.white;
+                transform.GetChild(6).GetComponent<Text>().enabled = true;
             }
             else if (leftLeg == BodyPartState.CONTROLLED)
             {
                 leftLeg = BodyPartState.ON;
                 transform.GetChild(2).GetComponent<Image>().color = Color.white;
+                transform.GetChild(6).GetComponent<Text>().enabled = true;
             }
 
         }
@@ -227,11 +239,13 @@ public class Body : MonoBehaviour
             {
                 rightLeg = BodyPartState.ON;
                 transform.GetChild(3).GetComponent<Image>().color = Color.white;
+                transform.GetChild(7).GetComponent<Text>().enabled = true;
             }
             else if (rightLeg == BodyPartState.CONTROLLED)
             {
                 rightLeg = BodyPartState.ON;
                 transform.GetChild(3).GetComponent<Image>().color = Color.white;
+                transform.GetChild(7).GetComponent<Text>().enabled = true;
             }
         }
     }
@@ -241,46 +255,49 @@ public class Body : MonoBehaviour
     //if OFF -> return null
     public GameObject controlPart(BodyPart bp, GameObject Player)
     {
-        if (bp == BodyPart.LEFTLEG)
+        if (hidden) //ensures you can't remove legs before hitting the first lever
         {
-            if (leftLeg == BodyPartState.ON)
+            if (bp == BodyPart.LEFTLEG)
             {
-                leftLeg = BodyPartState.CONTROLLED;
-                transform.GetChild(2).GetComponent<Image>().color = Color.yellow;
-                leftLegGO = Instantiate(leftLegPrefab);
-                leftLegGO.transform.parent = Player.transform.parent;
-                leftLegGO.transform.position = Player.transform.position;
-                leftLegGO.GetComponent<CharacterController>().enabled = true;
-                return leftLegGO;
+                if (leftLeg == BodyPartState.ON)
+                {
+                    leftLeg = BodyPartState.CONTROLLED;
+                    transform.GetChild(2).GetComponent<Image>().color = Color.yellow;
+                    leftLegGO = Instantiate(leftLegPrefab);
+                    leftLegGO.transform.parent = Player.transform.parent;
+                    leftLegGO.transform.position = Player.transform.position;
+                    leftLegGO.GetComponent<CharacterController>().enabled = true;
+                    return leftLegGO;
+                }
+                else if (leftLeg == BodyPartState.CONTROLLED)
+                {
+                    return leftLegGO;
+                }
+                else if (leftLeg == BodyPartState.OFF)
+                {
+                    return null;
+                }
             }
-            else if (leftLeg == BodyPartState.CONTROLLED)
+            else if (bp == BodyPart.RIGHTLEG)
             {
-                return leftLegGO;
-            }
-            else if(leftLeg == BodyPartState.OFF)
-            {
-                return null;
-            }
-        }
-        else if(bp == BodyPart.RIGHTLEG)
-        {
-            if (rightLeg == BodyPartState.ON)
-            {
-                rightLeg = BodyPartState.CONTROLLED;
-                transform.GetChild(3).GetComponent<Image>().color = Color.yellow;
-                rightLegGO = Instantiate(rightLegPrefab);
-                rightLegGO.transform.parent = Player.transform.parent;
-                rightLegGO.transform.position = Player.transform.position;
-                rightLegGO.GetComponent<CharacterController>().enabled = true;
-                return rightLegGO;
-            }
-            else if (leftLeg == BodyPartState.CONTROLLED)
-            {
-                return rightLegGO;
-            }
-            else if (leftLeg == BodyPartState.OFF)
-            {
-                return null;
+                if (rightLeg == BodyPartState.ON)
+                {
+                    rightLeg = BodyPartState.CONTROLLED;
+                    transform.GetChild(3).GetComponent<Image>().color = Color.yellow;
+                    rightLegGO = Instantiate(rightLegPrefab);
+                    rightLegGO.transform.parent = Player.transform.parent;
+                    rightLegGO.transform.position = Player.transform.position;
+                    rightLegGO.GetComponent<CharacterController>().enabled = true;
+                    return rightLegGO;
+                }
+                else if (leftLeg == BodyPartState.CONTROLLED)
+                {
+                    return rightLegGO;
+                }
+                else if (leftLeg == BodyPartState.OFF)
+                {
+                    return null;
+                }
             }
         }
         return null;

@@ -9,7 +9,7 @@ public class ColorTile : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         //Debug.Log(other.name);
-        if(other.tag == "Player" && !used)
+        if((other.tag == "Player" || other.tag == "PlayerPiece") && !used)
         {
             GameMananger.instance.colorTileTrigger(color);
             used = true;
@@ -18,7 +18,7 @@ public class ColorTile : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.tag == "Player" && used)
+        if ((other.tag == "Player" || other.tag == "PlayerPiece") && used)
         {
             used = false;
         }
