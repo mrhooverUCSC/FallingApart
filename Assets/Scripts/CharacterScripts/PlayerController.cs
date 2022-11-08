@@ -125,9 +125,7 @@ public class PlayerController : MonoBehaviour
     private void highlightInteract()
     {
         RaycastHit hit;
-        //Debug.DrawRay(transform.position + new Vector3(0, playerHeight * .64f, 0), Camera.main.transform.forward * 3, Color.cyan, .5f, true); //visualization of interaction raycast
-        Debug.DrawRay(cameraPos.position, cameraPos.transform.forward * 3, Color.cyan, .5f, true);
-        //if (Physics.Raycast(transform.position + new Vector3(0, playerHeight * .64f, 0), Camera.main.transform.forward, out hit, 3, IsInteractable)) //if something is in that raycast,
+        //Debug.DrawRay(cameraPos.position, cameraPos.transform.forward * 3, Color.cyan, .5f, true);
         if(Physics.Raycast(cameraPos.position, cameraPos.transform.forward, out hit, 3, IsInteractable))
         {
             //Debug.Log("detected " + hit.collider.gameObject.ToString()); //outputs what we're looking at
