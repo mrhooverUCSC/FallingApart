@@ -127,7 +127,6 @@ public class PlayerControllerPieces : PlayerController
         else
         {
             parts.addPart(i.partNeeded);
-            Debug.Log("hi");
         }
         base.interact(i);
     }

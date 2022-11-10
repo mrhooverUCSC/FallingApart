@@ -290,7 +290,7 @@ public class Body : MonoBehaviour
                     rightLegGO.GetComponent<CharacterController>().enabled = true;
                     return rightLegGO;
                 }
-                else if (leftLeg == BodyPartState.CONTROLLED)
+                else if (rightLeg == BodyPartState.CONTROLLED)
                 {
                     return rightLegGO;
                 }

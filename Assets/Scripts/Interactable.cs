@@ -23,7 +23,6 @@ public class Interactable : MonoBehaviour
 
     public virtual void interact()
     {
-        Debug.Log("bye");
         if (loosePart)
         {
             onDestroyEvent.Invoke(); //invoke event when being destroyed

@@ -10,8 +10,8 @@ public class PressurePlate : Interactable
     bool inMotion = false; //pauses use while true
     int numObjects = 0; //if there's multiple things, only disable when there are no things at all left
     Dictionary<string, UnityAction> listeners = new Dictionary<string, UnityAction>(); //need to keep a copy of the listener made to destroy later. 
-                 //This List Pair is likely overkill, but the other option was a "left pair" and a "right pair", so I made a more abstract version with higher functionality.
-                 //Basically, when a listener is made, write down the name of the object with its function to remove later, then delete it.
+                 //This Dictionary is likely overkill, but the other option was a "left pair" and a "right pair", so I made a more abstract version with higher functionality.
+                 //Basically, when a listener is made, write down the name of the object with its function to use later, then delete it after using it.
     UnityAction trigger;
     public override void interact()
     {
