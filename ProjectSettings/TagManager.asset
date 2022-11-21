@@ -22,11 +22,11 @@ TagManager:
   - isGrabbable
   - grabbed
   - 
-  - 
-  - junction
-  - deadEnd
+  - junctionP1
+  - junctionP2
+  - junctionP3
+  - junctionDead
   - wall
-  - 
   - 
   - 
   - 
