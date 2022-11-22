@@ -8,6 +8,10 @@ TagManager:
   - CanvasPresentIcon
   - PlayerPiece
   - TutorialSwitch
+  - junction1
+  - junction2
+  - junction3
+  - junctionDead4
   layers:
   - Default
   - TransparentFX
@@ -22,10 +26,10 @@ TagManager:
   - isGrabbable
   - grabbed
   - 
-  - junctionP1
-  - junctionP2
-  - junctionP3
-  - junctionDead
+  - junction
+  - 
+  - 
+  - 
   - wall
   - 
   - 

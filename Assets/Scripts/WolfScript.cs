@@ -2,8 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class WolfScript : MonoBehaviour
 {
+    private class junctionInfo{
+        public Collider collider;
+        public direction dir;
+        public int priority;
+        public junctionInfo(Collider c, direction d, int p)
+        {
+            priority = p;
+            dir = d;
+            collider = c;
+        }
+        public string ToString()
+        {
+            return dir + " " + collider + " " + priority;
+        }
+    } //for the junction analysis in chooseDirection
     //Cardinal directions: 
     public static readonly Vector3 North = new Vector3(0, 0, 1);
     public static readonly Vector3 South = new Vector3(0, 0, -1);
@@ -73,66 +89,79 @@ public class WolfScript : MonoBehaviour
     {
         Debug.Log("---- STARTING CHOOSEDIRECTION ----");
         RaycastHit hit;
-        //Layers are just a number, so looping is super easy. I'm using 'i' just for readability in the actual loop, as a hold over for "Layers 13-16"
-        LayerMask wallMask = LayerMask.NameToLayer("wall");
-        LayerMask temp = LayerMask.NameToLayer("junctionP1"); //iteratable layermask
-        List<KeyValuePair<Collider, direction>> junctions = new List<KeyValuePair<Collider, direction>>(); //a list to keep track of what the wolf finds, in order of prority
-        //for each prority, check if there is that prority in each direction the player is not coming from, then save it if there is
-        for (int i = 1; i < 4; ++i, ++temp){
-            Debug.Log("-- Starting Layer " + i + " | " + LayerMask.LayerToName(temp));
-            if (dir != direction.NORTH)// && !Physics.Raycast(transform.position, North, out hit, 25, wallMask))
+        int temp = 12; //the junction layermask
+        int layermask = 1 << temp; //bit shifting it
+        /*THERE IS SOMETHING FUNDAMENTALLY WRONG HERE
+         * I was using NameToLayer("junction"), but that doesn't work was i wanted it to
+         * it's taking the layermask, but temp is "1101" so ~temp is "11111111111111111111111111110010".
+         * No idea why it's being saved as the number, not as the bit string, but that makes it useless for inversions
+         * I don't know why the layermask is being set like that, so instead I'm doing it manually, to get "10000000000000" -> "11111111111111111101111111111111"
+         * Just, like, gottta be careful with it.
+         * Oh, and my theory is this only messes with "~" because when I use it elsewhere without ~ it works like I expect it to.
+         */
+        Debug.Log(System.Convert.ToString(layermask, 2) + " " + System.Convert.ToString((~layermask), 2));
+        List<junctionInfo> junctions = new List<junctionInfo>(); //a list to keep track of what the wolf finds, unsorted
+        if (dir != direction.NORTH)
+        {
+            Debug.Log("checking north");
+            Debug.DrawRay(transform.position, North * 25, Color.cyan, .5f, true);
+            if (Physics.Raycast(transform.position, North, out hit, 25, ~layermask))
             {
-                Debug.Log("checking north");
-                Debug.DrawRay(transform.position, North * 25, Color.cyan, .5f, true);
-                if (Physics.Raycast(transform.position, North, out hit, 25, ~temp))
-                {
-                    Debug.Log("found junction priority " + i + " to north");
-                    junctions.Add(new KeyValuePair<Collider, direction>(hit.collider, direction.NORTH));
-                }
-            }
-            if (dir != direction.SOUTH)// && !Physics.Raycast(transform.position, South, out hit, 25, wallMask))
-            {
-                Debug.Log("checking south");
-                Debug.DrawRay(transform.position, South * 25, Color.cyan, .5f, true);
-                if (Physics.Raycast(transform.position, South, out hit, 25, ~temp))
-                {
-                    Debug.Log("found junction priority " + i + " to south");
-                    junctions.Add(new KeyValuePair<Collider, direction>(hit.collider, direction.SOUTH));
-                }
-            }
-            if (dir != direction.EAST)// && !Physics.Raycast(transform.position, East, out hit, 25, wallMask))
-            {
-                Debug.Log("checking east");
-                Debug.DrawRay(transform.position, East * 25, Color.cyan, .5f, true);
-                if (Physics.Raycast(transform.position, East, out hit, 25, ~temp))
-                {
-                    Debug.Log("found junction priority " + i + " to east");
-                    junctions.Add(new KeyValuePair<Collider, direction>(hit.collider, direction.EAST));
-                }
-            }
-            if (dir != direction.WEST)// && !Physics.Raycast(transform.position, West, out hit, 25, wallMask))
-            {
-                Debug.Log("checking west");
-                Debug.DrawRay(transform.position, West * 25, Color.cyan, .5f, true);
-                if (Physics.Raycast(transform.position, West, out hit, 25, ~temp))
-                {
-                    Debug.Log("found junction priority " + i + " to west");
-                    junctions.Add(new KeyValuePair<Collider, direction>(hit.collider, direction.WEST));
-                }
+                Debug.Log("found junction priority " + hit.collider.gameObject.tag + " to north");
+                junctions.Add(new junctionInfo(hit.collider, direction.NORTH, hit.collider.gameObject.tag[hit.collider.gameObject.tag.Length-1]));
             }
         }
-        //if you found a junction, go to the first one found
-        foreach(KeyValuePair<Collider, direction> i in junctions)
+        if (dir != direction.SOUTH)// && !Physics.Raycast(transform.position, South, out hit, 25, ~wallMask))
         {
-            Debug.Log(i);
+            Debug.Log("checking south");
+            Debug.DrawRay(transform.position, South * 25, Color.cyan, .5f, true);
+            if (Physics.Raycast(transform.position, South, out hit, 25, ~layermask))
+            {
+                Debug.Log("found junction priority " + hit.collider.gameObject.tag + " to south");
+                junctions.Add(new junctionInfo(hit.collider, direction.SOUTH, hit.collider.gameObject.tag[hit.collider.gameObject.tag.Length - 1]));
+            }
+        }
+        if (dir != direction.EAST)// && !Physics.Raycast(transform.position, East, out hit, 25, ~wallMask))
+        {
+            Debug.Log("checking east");
+            Debug.DrawRay(transform.position, East * 25, Color.cyan, .5f, true);
+            if (Physics.Raycast(transform.position, East, out hit, 25, ~layermask))
+            {
+                Debug.Log("found junction priority " + hit.collider.gameObject.tag + " to east");
+                junctions.Add(new junctionInfo(hit.collider, direction.EAST, hit.collider.gameObject.tag[hit.collider.gameObject.tag.Length - 1]));
+            }
+        }
+        if (dir != direction.WEST)// && !Physics.Raycast(transform.position, West, out hit, 25, ~wallMask))
+        {
+            Debug.Log("checking west");
+            Debug.DrawRay(transform.position, West * 25, Color.cyan, .5f, true);
+            if (Physics.Raycast(transform.position, West, out hit, 25, ~layermask))
+            {
+                Debug.Log("found junction priority " + hit.collider.gameObject.tag + " to west");
+                junctions.Add(new junctionInfo(hit.collider, direction.WEST, hit.collider.gameObject.tag[hit.collider.gameObject.tag.Length - 1]));
+            }
+        }
+        //if you found a junction, go to the highest prority
+        foreach(junctionInfo i in junctions)
+        {
+            Debug.Log(i.ToString());
         }
         if (junctions.Count > 0)
         {
-            Debug.Log(junctions[0]);
-            running = true;
-            targetPosition = new Vector3(junctions[0].Key.transform.position.x, transform.position.y, junctions[0].Key.transform.position.z);
-            Debug.Log(targetPosition);
-            return;
+            for(int i = 49; i < 54; ++i)
+            {
+                foreach(junctionInfo j in junctions)
+                {
+                    if(j.priority == i)
+                    {
+                        Debug.Log(j.ToString());
+                        running = true;
+                        targetPosition = new Vector3(j.collider.transform.position.x, transform.position.y, j.collider.transform.position.z);
+                        Debug.Log(targetPosition);
+                        return;
+                    }
+                }
+            }
         }
         Debug.LogError("Failed to find any junctions for Wolf1 from player in direction " + dir);
     }
