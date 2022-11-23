@@ -7,7 +7,7 @@ using UnityEngine.Events;
 public class PressurePlate : Interactable
 {
     [SerializeField] GameObject target; //door it opens, or other stuff
-    bool inMotion = false; //pauses use while true
+    //bool inMotion = false; //pauses use while true
     int numObjects = 0; //if there's multiple things, only disable when there are no things at all left
     Dictionary<string, UnityAction> listeners = new Dictionary<string, UnityAction>(); //need to keep a copy of the listener made to destroy later. 
                  //This Dictionary is likely overkill, but the other option was a "left pair" and a "right pair", so I made a more abstract version with higher functionality.

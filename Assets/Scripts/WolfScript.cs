@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class WolfScript : MonoBehaviour
 {
-    private class junctionInfo{
+    private class junctionInfo { //for the junction analysis in chooseDirection
         public Collider collider;
         public direction dir;
         public int priority;
@@ -15,16 +15,19 @@ public class WolfScript : MonoBehaviour
             dir = d;
             collider = c;
         }
-        public string ToString()
+        public override string ToString()
         {
             return dir + " " + collider + " " + priority;
         }
-    } //for the junction analysis in chooseDirection
+    } 
     //Cardinal directions: 
     public static readonly Vector3 North = new Vector3(0, 0, 1);
     public static readonly Vector3 South = new Vector3(0, 0, -1);
     public static readonly Vector3 East = new Vector3(1, 0, 0);
     public static readonly Vector3 West = new Vector3(-1, 0, 0);
+    //rayacsting
+    int wallPlayerMask = 0b100000011000000; //layermask of wall and raycastableplayer
+    Vector3 origin; //the wuf's origin is at the bottom of its model, so the 'origin' gets from the waist instead for more consistent raycasts
     enum direction
     {
         NORTH,
@@ -36,6 +39,7 @@ public class WolfScript : MonoBehaviour
     GameObject player;
     public bool activated = false;
     bool running = false; //so the wolf doesn't keep tracking while moving between points
+    bool cornered = false; //once it hits a dead end, trigger this
     Vector3 targetPosition;
     CharacterController cController;
     void Start()
@@ -46,41 +50,75 @@ public class WolfScript : MonoBehaviour
 
     void Update()
     {
+        origin = gameObject.transform.position + new Vector3(0, .2f, 0); //setup the origin for raycasting
         detectPlayer();
-        if (running && Vector3.Distance(transform.position, targetPosition) > .2f)
+        if (running && Vector3.Distance(transform.position, targetPosition) > .4f)
         {
             //Debug.Log(transform.position + " | " + targetPosition);
             cController.SimpleMove((targetPosition - transform.position).normalized * 2);
         }
         else if(running)
         {
+            Debug.Log("wolf arrived at location");
             running = false;
         }
+        if(!running && cornered)
+        {
+            //drop the leg and leave
+        }
     }
-    //detect if player is in line, then send that over to chooseDirection
+    //detect if player is in line and visible, then send that over to chooseDirection
+    //if wall in the way, then don't run away. the player has a secondary hitbox for this reason, so the wolf can see the player fully from any place
     private void detectPlayer()
     {
-        if (activated && !running)
+        if (activated && !running && !cornered)
         {
-            if (Mathf.Abs(gameObject.transform.position.x - player.gameObject.transform.position.x) < 1.25 && gameObject.transform.position.z < player.gameObject.transform.position.z)
+            Debug.DrawRay(origin, East * 25, Color.black, .5f);
+            Debug.DrawRay(origin, West * 25, Color.black, .5f);
+            RaycastHit hit;
+            if (Mathf.Abs(gameObject.transform.position.x - player.gameObject.transform.position.x) < 1.25 //if in line
+                && gameObject.transform.position.z < player.gameObject.transform.position.z //and in this direction
+                && Physics.Raycast(origin, North, out hit, 25, 0b100000010000000)) //check for the collision of a wall or the player
             {
-                Debug.Log("player in north");
-                chooseDirection(direction.NORTH);
+                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("raycastablePlayer")) //if it's the player
+                {
+                    Debug.DrawRay(origin, North * 25, Color.green, .5f);
+                    Debug.Log("player in north");
+                    chooseDirection(direction.NORTH);
+                }
             }
-            else if (Mathf.Abs(gameObject.transform.position.x - player.gameObject.transform.position.x) < 1.25 && gameObject.transform.position.z > player.gameObject.transform.position.z)
+            else if (Mathf.Abs(gameObject.transform.position.x - player.gameObject.transform.position.x) < 1.25 
+                && gameObject.transform.position.z > player.gameObject.transform.position.z
+                && Physics.Raycast(origin, South, out hit, 25, 0b100000010000000))
             {
-                Debug.Log("player in south");
-                chooseDirection(direction.SOUTH);
+                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("raycastablePlayer"))
+                {
+                    Debug.DrawRay(origin, South * 25, Color.green, .5f);
+                    Debug.Log("player in south");
+                    chooseDirection(direction.SOUTH);
+                }
             }
-            else if (Mathf.Abs(gameObject.transform.position.z - player.gameObject.transform.position.z) < 1.25 && gameObject.transform.position.x < player.gameObject.transform.position.x)
+            else if (Mathf.Abs(gameObject.transform.position.z - player.gameObject.transform.position.z) < 1.25
+                && gameObject.transform.position.x < player.gameObject.transform.position.x
+                && Physics.Raycast(origin, East, out hit, 25, 0b100000010000000))
             {
-                Debug.Log("player in east");
-                chooseDirection(direction.EAST);
+                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("raycastablePlayer"))
+                {
+                    Debug.DrawRay(origin, East * 25, Color.green, .5f);
+                    Debug.Log("player in east");
+                    chooseDirection(direction.EAST);
+                }
             }
-            else if (Mathf.Abs(gameObject.transform.position.z - player.gameObject.transform.position.z) < 1.25 && gameObject.transform.position.x > player.gameObject.transform.position.x)
+            else if (Mathf.Abs(gameObject.transform.position.z - player.gameObject.transform.position.z) < 1.25
+                && gameObject.transform.position.x > player.gameObject.transform.position.x
+                && Physics.Raycast(origin, West, out hit, 25, 0b100000010000000))
             {
-                Debug.Log("player in west");
-                chooseDirection(direction.WEST);
+                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("raycastablePlayer"))
+                {
+                    Debug.DrawRay(origin, West * 25, Color.green, .5f);
+                    Debug.Log("player in west");
+                    chooseDirection(direction.WEST);
+                }
             }
         }
     }
@@ -89,56 +127,59 @@ public class WolfScript : MonoBehaviour
     {
         Debug.Log("---- STARTING CHOOSEDIRECTION ----");
         RaycastHit hit;
-        int temp = 12; //the junction layermask
-        int layermask = 1 << temp; //bit shifting it
-        /*THERE IS SOMETHING FUNDAMENTALLY WRONG HERE
-         * I was using NameToLayer("junction"), but that doesn't work was i wanted it to
-         * it's taking the layermask, but temp is "1101" so ~temp is "11111111111111111111111111110010".
-         * No idea why it's being saved as the number, not as the bit string, but that makes it useless for inversions
-         * I don't know why the layermask is being set like that, so instead I'm doing it manually, to get "10000000000000" -> "11111111111111111101111111111111"
-         * Just, like, gottta be careful with it.
-         * Oh, and my theory is this only messes with "~" because when I use it elsewhere without ~ it works like I expect it to.
-         */
-        Debug.Log(System.Convert.ToString(layermask, 2) + " " + System.Convert.ToString((~layermask), 2));
         List<junctionInfo> junctions = new List<junctionInfo>(); //a list to keep track of what the wolf finds, unsorted
         if (dir != direction.NORTH)
         {
             Debug.Log("checking north");
-            Debug.DrawRay(transform.position, North * 25, Color.cyan, .5f, true);
-            if (Physics.Raycast(transform.position, North, out hit, 25, ~layermask))
+            Debug.DrawRay(origin, North * 25, Color.cyan, .5f, true);
+            if (Physics.Raycast(origin, North, out hit, 25, 0b110000000000000))
             {
-                Debug.Log("found junction priority " + hit.collider.gameObject.tag + " to north");
-                junctions.Add(new junctionInfo(hit.collider, direction.NORTH, hit.collider.gameObject.tag[hit.collider.gameObject.tag.Length-1]));
+                if(hit.collider.gameObject.layer == LayerMask.NameToLayer("junction"))
+                {
+                    Debug.Log("found junction priority " + hit.collider.gameObject.tag + " to north");
+                    junctions.Add(new junctionInfo(hit.collider, direction.NORTH, hit.collider.gameObject.tag[hit.collider.gameObject.tag.Length - 1]));
+                }
             }
         }
         if (dir != direction.SOUTH)// && !Physics.Raycast(transform.position, South, out hit, 25, ~wallMask))
         {
             Debug.Log("checking south");
-            Debug.DrawRay(transform.position, South * 25, Color.cyan, .5f, true);
-            if (Physics.Raycast(transform.position, South, out hit, 25, ~layermask))
+            Debug.DrawRay(origin, South * 25, Color.cyan, .5f, true);
+            if (Physics.Raycast(origin, South, out hit, 25, 0b110000000000000))
             {
-                Debug.Log("found junction priority " + hit.collider.gameObject.tag + " to south");
-                junctions.Add(new junctionInfo(hit.collider, direction.SOUTH, hit.collider.gameObject.tag[hit.collider.gameObject.tag.Length - 1]));
+                Debug.Log(hit.collider.gameObject.name + " | " + hit.collider.gameObject.tag);
+                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("junction"))
+                {
+
+                    Debug.Log("found junction priority " + hit.collider.gameObject.tag + " to south");
+                    junctions.Add(new junctionInfo(hit.collider, direction.SOUTH, hit.collider.gameObject.tag[hit.collider.gameObject.tag.Length - 1]));
+                }
             }
         }
         if (dir != direction.EAST)// && !Physics.Raycast(transform.position, East, out hit, 25, ~wallMask))
         {
             Debug.Log("checking east");
-            Debug.DrawRay(transform.position, East * 25, Color.cyan, .5f, true);
-            if (Physics.Raycast(transform.position, East, out hit, 25, ~layermask))
+            Debug.DrawRay(origin, East * 25, Color.cyan, .5f, true);
+            if (Physics.Raycast(origin, East, out hit, 25, 0b110000000000000))
             {
-                Debug.Log("found junction priority " + hit.collider.gameObject.tag + " to east");
-                junctions.Add(new junctionInfo(hit.collider, direction.EAST, hit.collider.gameObject.tag[hit.collider.gameObject.tag.Length - 1]));
+                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("junction"))
+                {
+                    Debug.Log("found junction priority " + hit.collider.gameObject.tag + " to east");
+                    junctions.Add(new junctionInfo(hit.collider, direction.EAST, hit.collider.gameObject.tag[hit.collider.gameObject.tag.Length - 1]));
+                }
             }
         }
         if (dir != direction.WEST)// && !Physics.Raycast(transform.position, West, out hit, 25, ~wallMask))
         {
             Debug.Log("checking west");
-            Debug.DrawRay(transform.position, West * 25, Color.cyan, .5f, true);
-            if (Physics.Raycast(transform.position, West, out hit, 25, ~layermask))
+            Debug.DrawRay(origin, West * 25, Color.cyan, .5f, true);
+            if (Physics.Raycast(origin, West, out hit, 25, 0b110000000000000))
             {
-                Debug.Log("found junction priority " + hit.collider.gameObject.tag + " to west");
-                junctions.Add(new junctionInfo(hit.collider, direction.WEST, hit.collider.gameObject.tag[hit.collider.gameObject.tag.Length - 1]));
+                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("junction"))
+                {
+                    Debug.Log("found junction priority " + hit.collider.gameObject.tag + " to west");
+                    junctions.Add(new junctionInfo(hit.collider, direction.WEST, hit.collider.gameObject.tag[hit.collider.gameObject.tag.Length - 1]));
+                }
             }
         }
         //if you found a junction, go to the highest prority
@@ -148,7 +189,7 @@ public class WolfScript : MonoBehaviour
         }
         if (junctions.Count > 0)
         {
-            for(int i = 49; i < 54; ++i)
+            for(int i = 49; i < 53; ++i) //ascii 1-4
             {
                 foreach(junctionInfo j in junctions)
                 {
@@ -156,6 +197,10 @@ public class WolfScript : MonoBehaviour
                     {
                         Debug.Log(j.ToString());
                         running = true;
+                        if(i == 52)
+                        {
+                            cornered = true;
+                        }
                         targetPosition = new Vector3(j.collider.transform.position.x, transform.position.y, j.collider.transform.position.z);
                         Debug.Log(targetPosition);
                         return;
