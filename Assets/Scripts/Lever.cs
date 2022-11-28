@@ -5,7 +5,8 @@ using UnityEngine;
 enum LeverType
 {
     none = 0,
-    Door
+    Door,
+    WolfDoor
 }
 //inheireted from Interactable:
 //    public BodyPart partNeeded; //assign in editor
@@ -15,38 +16,50 @@ public class Lever : Interactable
     [SerializeField] LeverType type;
     bool inMotion = false; //pauses use while true
     [SerializeField] GameObject target;
+    [SerializeField] GameObject target2;
 
     public override void interact() //move lever, if not in use, and marks body part used
     {
         if (inMotion == false){
-            if (type == LeverType.Door)
-            {
-                //GetComponent<Animator>().SetTrigger("Activate");
-            }
             if (!partInUse)
             {
-                GetComponent<Animator>().SetBool("Open", true);
+                GetComponent<Animator>().SetBool("Used", true);
                 partInUse = true;
             }
-            else
+            else if(partInUse)
             {
-                GetComponent<Animator>().SetBool("Open", false);
+                GetComponent<Animator>().SetBool("Used", false);
                 partInUse = false;
             }
+            inMotion = true;
         }
-        inMotion = true;
-        
     }
     public void openDoor() //opens the door, gets called by the animation
     {
         //Debug.Log("open door called");
-        target.GetComponent<Animator>().SetBool("Open", true);
+        if(type == LeverType.Door)
+        {
+            target.GetComponent<Animator>().SetBool("Open", true);
+        }
+        if (type == LeverType.WolfDoor) //wolf doors are open by default, and close when interacted with
+        {
+            target.GetComponent<Animator>().SetBool("Closed", true);
+            target2.GetComponent<Animator>().SetBool("Closed", true);
+        }
         inMotion = false;
     }
     public void closeDoor()
     {
         //Debug.Log("close door called");
-        target.GetComponent<Animator>().SetBool("Open", false);
+        if (type == LeverType.Door)
+        {
+            target.GetComponent<Animator>().SetBool("Open", false);
+        }
+        if (type == LeverType.WolfDoor)
+        {
+            target.GetComponent<Animator>().SetBool("Closed", false);
+            target2.GetComponent<Animator>().SetBool("Closed", false);
+        }
         inMotion = false;
     }
 }

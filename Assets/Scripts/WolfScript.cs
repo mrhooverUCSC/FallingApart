@@ -73,8 +73,6 @@ public class WolfScript : MonoBehaviour
     {
         if (activated && !running && !cornered)
         {
-            Debug.DrawRay(origin, East * 25, Color.black, .5f);
-            Debug.DrawRay(origin, West * 25, Color.black, .5f);
             RaycastHit hit;
             if (Mathf.Abs(gameObject.transform.position.x - player.gameObject.transform.position.x) < 1.25 //if in line
                 && gameObject.transform.position.z < player.gameObject.transform.position.z //and in this direction
