@@ -144,18 +144,17 @@ public class PlayerController : MonoBehaviour
         {
             highlight.gameObject.GetComponent<Outline>().OutlineColor = new Color(1, 1, 1, 0);
             highlight = null;
+
+            if(tutorialInteractImage.activeSelf == true) //turn off that first switch tutorial if it's on
+            {
+                tutorialInteractImage.SetActive(false);
+            }
         }
 
         //tutorial checks
         if (highlight && highlight.tag == "TutorialSwitch" && !tutorialInteractImageBool) //if it's the first switch, turn on the tutorial image
         {
             tutorialInteractImage.SetActive(true);
-            tutorialInteractImageBool = true;
-        }
-        else if(highlight && highlight.tag != "TutorialSwitch" && tutorialInteractImageBool) //if not highlighting that first switch, turn it off
-        {
-            tutorialInteractImage.SetActive(false);
-            tutorialInteractImageBool = false;
         }
 
         //grab object if button is pressed, nothing is held, and an object is highlighted
@@ -190,6 +189,11 @@ public class PlayerController : MonoBehaviour
         else if(Input.GetKeyDown(KeyCode.E) && !held && highlight && highlight.layer == LayerMask.NameToLayer("isInteractable"))
         {
             interact(highlight.GetComponent<Interactable>());
+            if (tutorialInteractImage.activeSelf == true) //turn off that first switch tutorial if it's on
+            {
+                tutorialInteractImage.SetActive(false);
+                tutorialInteractImageBool = true;
+            }
         }
     }
     

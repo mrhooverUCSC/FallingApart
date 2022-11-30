@@ -13,7 +13,9 @@ public class PlayerControllerPieces : PlayerController
     [SerializeField] Body parts; //keeps track off the pieces
     GameObject controlPartGO = null;
     BodyPart controlPart = BodyPart.HEAD;
-    bool[] tutorialTriggers = new bool[1]; //trigger 1: no body UI until first thing pulled
+    bool[] tutorialTriggers = new bool[2]; 
+    //trigger 0 :
+    //trigger 1: no body UI until first thing pulled
 
     public override void Start()
     {
@@ -28,7 +30,7 @@ public class PlayerControllerPieces : PlayerController
 
     private void ControlLegs()
     {
-        if (tutorialTriggers[0]) //only allow leg control if the player has opened that lever
+        if (tutorialTriggers[1]) //only allow leg control if the player has opened that lever
         {
             if (Input.GetKeyDown(KeyCode.H))//Input.GetMouseButtonDown(0))
             {
@@ -119,9 +121,9 @@ public class PlayerControllerPieces : PlayerController
         if (!i.partInUse)
         {
             parts.usePart(i.partNeeded);
-            if(tutorialTriggers[0] == false)
+            if(tutorialTriggers[1] == false)
             {
-                tutorialTriggers[0] = true;
+                tutorialTriggers[1] = true;
             }
         }
         else

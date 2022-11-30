@@ -27,7 +27,7 @@ public class WolfScript : MonoBehaviour
     public static readonly Vector3 West = new Vector3(-1, 0, 0);
     //rayacsting
     int wallPlayerMask = 0b100000011000000; //layermask of wall and raycastableplayer
-    Vector3 origin; //the wuf's origin is at the bottom of its model, so the 'origin' gets from the waist instead for more consistent raycasts
+    Vector3 origin; //the wuf's origin is at the bottom of its model, so the 'origin' gets from the waist instead for more consistent raycasts. needs to be updated in Update()
     enum direction
     {
         NORTH,
@@ -52,20 +52,34 @@ public class WolfScript : MonoBehaviour
     {
         origin = gameObject.transform.position + new Vector3(0, .2f, 0); //setup the origin for raycasting
         detectPlayer();
+        run();
+    }
+    //Controls all the actual movements
+    private void run()
+    {
         if (running && Vector3.Distance(transform.position, targetPosition) > .4f)
         {
-            //Debug.Log(transform.position + " | " + targetPosition);
-            cController.SimpleMove((targetPosition - transform.position).normalized * 2);
+            GetComponent<Animator>().SetBool("Running", true);
+            Debug.Log("hi");
+            cController.SimpleMove((targetPosition - transform.position).normalized * 3); //move towards the point
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(targetPosition - transform.position).normalized, Time.deltaTime * 2); //turn towards it
         }
-        else if(running)
+        else if (running)
         {
             Debug.Log("wolf arrived at location");
             running = false;
         }
-        if(!running && cornered)
+        if (!running && cornered)
         {
             //drop the leg and leave
+            GetComponent<Animator>().SetBool("Drop", true);
         }
+        else if (!running)//if not running around look at the player
+        {
+            GetComponent<Animator>().SetBool("Running", false);
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(player.transform.position - transform.position).normalized, Time.deltaTime * 2); //turn towards it
+        }
+
     }
     //detect if player is in line and visible, then send that over to chooseDirection
     //if wall in the way, then don't run away. the player has a secondary hitbox for this reason, so the wolf can see the player fully from any place
@@ -76,44 +90,44 @@ public class WolfScript : MonoBehaviour
             RaycastHit hit;
             if (Mathf.Abs(gameObject.transform.position.x - player.gameObject.transform.position.x) < 1.25 //if in line
                 && gameObject.transform.position.z < player.gameObject.transform.position.z //and in this direction
-                && Physics.Raycast(origin, North, out hit, 25, 0b100000010000000)) //check for the collision of a wall or the player
+                && Physics.Raycast(origin, North, out hit, 15, 0b100000010000000)) //check for the collision of a wall or the player
             {
                 if (hit.collider.gameObject.layer == LayerMask.NameToLayer("raycastablePlayer")) //if it's the player
                 {
-                    Debug.DrawRay(origin, North * 25, Color.green, .5f);
+                    Debug.DrawRay(origin, North * 15, Color.green, .5f);
                     Debug.Log("player in north");
                     chooseDirection(direction.NORTH);
                 }
             }
             else if (Mathf.Abs(gameObject.transform.position.x - player.gameObject.transform.position.x) < 1.25 
                 && gameObject.transform.position.z > player.gameObject.transform.position.z
-                && Physics.Raycast(origin, South, out hit, 25, 0b100000010000000))
+                && Physics.Raycast(origin, South, out hit, 15, 0b100000010000000))
             {
                 if (hit.collider.gameObject.layer == LayerMask.NameToLayer("raycastablePlayer"))
                 {
-                    Debug.DrawRay(origin, South * 25, Color.green, .5f);
+                    Debug.DrawRay(origin, South * 15, Color.green, .5f);
                     Debug.Log("player in south");
                     chooseDirection(direction.SOUTH);
                 }
             }
             else if (Mathf.Abs(gameObject.transform.position.z - player.gameObject.transform.position.z) < 1.25
                 && gameObject.transform.position.x < player.gameObject.transform.position.x
-                && Physics.Raycast(origin, East, out hit, 25, 0b100000010000000))
+                && Physics.Raycast(origin, East, out hit, 15, 0b100000010000000))
             {
                 if (hit.collider.gameObject.layer == LayerMask.NameToLayer("raycastablePlayer"))
                 {
-                    Debug.DrawRay(origin, East * 25, Color.green, .5f);
+                    Debug.DrawRay(origin, East * 15, Color.green, .5f);
                     Debug.Log("player in east");
                     chooseDirection(direction.EAST);
                 }
             }
             else if (Mathf.Abs(gameObject.transform.position.z - player.gameObject.transform.position.z) < 1.25
                 && gameObject.transform.position.x > player.gameObject.transform.position.x
-                && Physics.Raycast(origin, West, out hit, 25, 0b100000010000000))
+                && Physics.Raycast(origin, West, out hit, 15, 0b100000010000000))
             {
                 if (hit.collider.gameObject.layer == LayerMask.NameToLayer("raycastablePlayer"))
                 {
-                    Debug.DrawRay(origin, West * 25, Color.green, .5f);
+                    Debug.DrawRay(origin, West * 15, Color.green, .5f);
                     Debug.Log("player in west");
                     chooseDirection(direction.WEST);
                 }
@@ -121,7 +135,7 @@ public class WolfScript : MonoBehaviour
         }
     }
     //raycast in directions player is not in. find the best one, then go there.
-    void chooseDirection(direction dir) //dir is direction the player is in
+    private void chooseDirection(direction dir) //dir is direction the player is in
     {
         Debug.Log("---- STARTING CHOOSEDIRECTION ----");
         RaycastHit hit;
@@ -207,5 +221,16 @@ public class WolfScript : MonoBehaviour
             }
         }
         Debug.LogError("Failed to find any junctions for Wolf1 from player in direction " + dir);
+    }
+
+    public void dropLeg()
+    {
+        GameObject temp = Instantiate(Resources.Load<GameObject>("Prefabs/RightLeg"));
+        temp.transform.position = transform.position + new Vector3(0, .3f, 0);
+    }
+
+    public void leave()
+    {
+        Destroy(this.gameObject);
     }
 }

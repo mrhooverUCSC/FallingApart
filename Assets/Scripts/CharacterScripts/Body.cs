@@ -41,8 +41,8 @@ public class Body : MonoBehaviour
     GameObject leftLegGO;
     GameObject rightArmGO;
     GameObject leftArmGO;
-    //UI images are children. Get them with GetChild: 0 - left arm, 1 - right arm, 2 - left leg, 3 - right leg
-    //
+    //UI images are children. Get them with GetChild: 0 - left arm, 1 - right arm, 2 - left leg, 3 - right leg, 4 - body, 5 - head
+    //CannotMoveAlert is child 6
     public void Start()
     {
         rightLegPrefab = Resources.Load<GameObject>("Prefabs/RightLeg");
@@ -50,10 +50,6 @@ public class Body : MonoBehaviour
     }
     public void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Y))
-        {
-            rightLegGO.transform.position = new Vector3(100, 0, 100);
-        }
     }
     public bool partAvailable(BodyPart bp) //returns true if that bodypart is available for use. Disconnected is false.
     {
@@ -174,6 +170,7 @@ public class Body : MonoBehaviour
                 transform.GetChild(7).GetComponent<Text>().enabled = false;
             }
         }
+        canMove();
     }
     public void addPart(BodyPart bp)//only call after checking partSpaceAbailable. Can replace Disconnected parts.
     {
@@ -267,14 +264,17 @@ public class Body : MonoBehaviour
                     leftLegGO.transform.parent = Player.transform.parent;
                     leftLegGO.transform.position = Player.transform.position;
                     leftLegGO.GetComponent<CharacterController>().enabled = true;
+                    canMove();
                     return leftLegGO;
                 }
                 else if (leftLeg == BodyPartState.CONTROLLED)
                 {
+                    canMove();
                     return leftLegGO;
                 }
                 else if (leftLeg == BodyPartState.OFF)
                 {
+                    canMove();
                     return null;
                 }
             }
@@ -288,26 +288,32 @@ public class Body : MonoBehaviour
                     rightLegGO.transform.parent = Player.transform.parent;
                     rightLegGO.transform.position = Player.transform.position;
                     rightLegGO.GetComponent<CharacterController>().enabled = true;
+                    canMove();
                     return rightLegGO;
                 }
                 else if (rightLeg == BodyPartState.CONTROLLED)
                 {
+                    canMove();
                     return rightLegGO;
                 }
                 else if (leftLeg == BodyPartState.OFF)
                 {
+                    canMove();
                     return null;
                 }
             }
         }
+        canMove();
         return null;
     }
     public bool canMove()
     {
         if(leftLeg == BodyPartState.ON || rightLeg == BodyPartState.ON)
         {
+            transform.GetChild(6).gameObject.SetActive(false);
             return true;
         }
+        transform.GetChild(6).gameObject.SetActive(true); //give alert about not being able to move
         return false;
     }
 }
