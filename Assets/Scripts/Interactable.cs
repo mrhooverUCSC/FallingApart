@@ -6,6 +6,7 @@ using UnityEngine.Events;
 public class Interactable : MonoBehaviour
 {
     public BodyPart partNeeded;
+    public bool usePart; //false if the part is not used in the operation. true if part is used in operation
     public bool partInUse; //false if no body part on it, true if there is a body part on it
     public bool loosePart; //deletes itself if it's just a body part
     public UnityEvent onDestroyEvent; //Event to tell pressure plates when destroyed

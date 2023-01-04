@@ -8,7 +8,8 @@ public enum BodyPart //we'll see if the arms need to differentiate eventually
     RIGHTLEG,
     LEG, //leg is for either one
     ARM,
-    HEAD
+    HEAD,
+    NONE
 }
 public enum BodyPartState
 {
@@ -85,6 +86,7 @@ public class Body : MonoBehaviour
     }
     public bool partSpaceAvailable(BodyPart bp) //returns true if there is space for that bodypart. if a part is Disconnected, returns true.
     {
+        //Debug.Log("leftarm: " + leftArm + " |rightarm: " + rightArm + "|leftleg: " + leftLeg + "|rightLeg: " + rightLeg); 
         if (bp == BodyPart.ARM)
         {
             if (leftArm != BodyPartState.ON || rightArm != BodyPartState.ON)
@@ -117,7 +119,7 @@ public class Body : MonoBehaviour
     }
     public void usePart(BodyPart bp)//only call after checking partAvailable. Cannot remotely use Disconnected parts. Intended for "interact" functions
     {
-        Debug.Log(bp);
+        Debug.Log("usepart" + bp);
         if (bp == BodyPart.ARM)
         {
             if(leftArm == BodyPartState.ON)
@@ -174,6 +176,7 @@ public class Body : MonoBehaviour
     }
     public void addPart(BodyPart bp)//only call after checking partSpaceAbailable. Can replace Disconnected parts.
     {
+        Debug.Log("gainpart" + bp);
         if (bp == BodyPart.ARM)
         {
             if (leftArm != BodyPartState.ON)

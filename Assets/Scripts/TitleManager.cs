@@ -13,6 +13,8 @@ public class TitleManager : MonoBehaviour
 {
     public static TitleManager instance { get; private set; }
     public static level_name level;
+    public bool checkpointAvailable = true;
+    public bool checkpointUsed = false;
     private void Awake()
     {
         if (instance != null && instance != this)
@@ -26,8 +28,19 @@ public class TitleManager : MonoBehaviour
     }
     public void EnterLevel()
     {
+        checkpointUsed = false;
         SceneManager.LoadScene("FallingApart");
         level = level_name.starting;
+    }
+
+    public void Checkpoint()
+    {
+        if(checkpointAvailable == true)
+        {
+            checkpointUsed = true;
+            SceneManager.LoadScene("FallingApart");
+            level = level_name.starting;
+        }
     }
 
 }

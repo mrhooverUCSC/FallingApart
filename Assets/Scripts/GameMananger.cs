@@ -114,4 +114,13 @@ public class GameMananger : MonoBehaviour
         }
         return Color.black;
     }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "Player")
+        {
+            TitleManager.instance.checkpointAvailable = true;
+            Debug.Log("checkpoint");
+        }
+    }
+
 }

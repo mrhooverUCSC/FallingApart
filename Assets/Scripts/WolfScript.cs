@@ -50,9 +50,12 @@ public class WolfScript : MonoBehaviour
 
     void Update()
     {
-        origin = gameObject.transform.position + new Vector3(0, .2f, 0); //setup the origin for raycasting
-        detectPlayer();
-        run();
+        if (activated)
+        {
+            origin = gameObject.transform.position + new Vector3(0, .2f, 0); //setup the origin for raycasting
+            detectPlayer();
+            run();
+        }
     }
     //Controls all the actual movements
     private void run()
@@ -60,8 +63,7 @@ public class WolfScript : MonoBehaviour
         if (running && Vector3.Distance(transform.position, targetPosition) > .4f)
         {
             GetComponent<Animator>().SetBool("Running", true);
-            Debug.Log("hi");
-            cController.SimpleMove((targetPosition - transform.position).normalized * 3); //move towards the point
+            cController.SimpleMove((targetPosition - transform.position).normalized * 6); //move towards the point
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(targetPosition - transform.position).normalized, Time.deltaTime * 2); //turn towards it
         }
         else if (running)
@@ -88,7 +90,7 @@ public class WolfScript : MonoBehaviour
         if (activated && !running && !cornered)
         {
             RaycastHit hit;
-            if (Mathf.Abs(gameObject.transform.position.x - player.gameObject.transform.position.x) < 1.25 //if in line
+            if (Mathf.Abs(gameObject.transform.position.x - player.gameObject.transform.position.x) < 1 //if in line
                 && gameObject.transform.position.z < player.gameObject.transform.position.z //and in this direction
                 && Physics.Raycast(origin, North, out hit, 15, 0b100000010000000)) //check for the collision of a wall or the player
             {
@@ -99,7 +101,7 @@ public class WolfScript : MonoBehaviour
                     chooseDirection(direction.NORTH);
                 }
             }
-            else if (Mathf.Abs(gameObject.transform.position.x - player.gameObject.transform.position.x) < 1.25 
+            else if (Mathf.Abs(gameObject.transform.position.x - player.gameObject.transform.position.x) < 1
                 && gameObject.transform.position.z > player.gameObject.transform.position.z
                 && Physics.Raycast(origin, South, out hit, 15, 0b100000010000000))
             {
@@ -110,7 +112,7 @@ public class WolfScript : MonoBehaviour
                     chooseDirection(direction.SOUTH);
                 }
             }
-            else if (Mathf.Abs(gameObject.transform.position.z - player.gameObject.transform.position.z) < 1.25
+            else if (Mathf.Abs(gameObject.transform.position.z - player.gameObject.transform.position.z) < 1
                 && gameObject.transform.position.x < player.gameObject.transform.position.x
                 && Physics.Raycast(origin, East, out hit, 15, 0b100000010000000))
             {
@@ -121,7 +123,7 @@ public class WolfScript : MonoBehaviour
                     chooseDirection(direction.EAST);
                 }
             }
-            else if (Mathf.Abs(gameObject.transform.position.z - player.gameObject.transform.position.z) < 1.25
+            else if (Mathf.Abs(gameObject.transform.position.z - player.gameObject.transform.position.z) < 1
                 && gameObject.transform.position.x > player.gameObject.transform.position.x
                 && Physics.Raycast(origin, West, out hit, 15, 0b100000010000000))
             {
@@ -225,7 +227,7 @@ public class WolfScript : MonoBehaviour
 
     public void dropLeg()
     {
-        GameObject temp = Instantiate(Resources.Load<GameObject>("Prefabs/RightLeg"));
+        GameObject temp = Instantiate(Resources.Load<GameObject>("Prefabs/RightLegDrop"));
         temp.transform.position = transform.position + new Vector3(0, .3f, 0);
     }
 

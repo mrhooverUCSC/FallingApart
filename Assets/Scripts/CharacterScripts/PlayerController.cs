@@ -52,6 +52,7 @@ public class PlayerController : MonoBehaviour
         rb.freezeRotation = true;
         characterController = GetComponent<CharacterController>();
         //held position setup
+
     }
 
     public virtual void Update()
@@ -186,6 +187,7 @@ public class PlayerController : MonoBehaviour
             held = null;
             heldRB = null;
         }
+        //interact if it's interactable
         else if(Input.GetKeyDown(KeyCode.E) && !held && highlight && highlight.layer == LayerMask.NameToLayer("isInteractable"))
         {
             interact(highlight.GetComponent<Interactable>());

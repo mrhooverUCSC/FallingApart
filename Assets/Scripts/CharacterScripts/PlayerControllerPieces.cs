@@ -13,13 +13,20 @@ public class PlayerControllerPieces : PlayerController
     [SerializeField] Body parts; //keeps track off the pieces
     GameObject controlPartGO = null;
     BodyPart controlPart = BodyPart.HEAD;
-    bool[] tutorialTriggers = new bool[2]; 
+    bool[] tutorialTriggers = new bool[2];
     //trigger 0 :
     //trigger 1: no body UI until first thing pulled
 
     public override void Start()
     {
         base.Start();
+        //if checkpoint
+        if (TitleManager.instance.checkpointUsed)
+        {
+            characterController.enabled = false;
+            transform.position = new Vector3(-27, 1, -5);
+            characterController.enabled = true;
+        }
     }
 
     public override void Update()
@@ -120,8 +127,11 @@ public class PlayerControllerPieces : PlayerController
         }
         if (!i.partInUse)
         {
-            parts.usePart(i.partNeeded);
-            if(tutorialTriggers[1] == false)
+            if (i.usePart) //if this interaction uses the part, use it
+            {
+                parts.usePart(i.partNeeded);
+            }
+            if (tutorialTriggers[1] == false) //flip the tutorial switch if it's their first interaction
             {
                 tutorialTriggers[1] = true;
             }

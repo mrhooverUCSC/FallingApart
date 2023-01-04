@@ -6,7 +6,8 @@ enum LeverType
 {
     none = 0,
     Door,
-    WolfDoor
+    WolfDoor,
+    Bar
 }
 //inheireted from Interactable:
 //    public BodyPart partNeeded; //assign in editor
@@ -17,6 +18,17 @@ public class Lever : Interactable
     bool inMotion = false; //pauses use while true
     [SerializeField] GameObject target;
     [SerializeField] GameObject target2;
+    [SerializeField] int registerNumber;
+    [SerializeField] bool startActivated;
+
+    public void Start()
+    {
+        if (startActivated)
+        {
+            Debug.Log("hi");
+            interact();
+        }
+    }
 
     public override void interact() //move lever, if not in use, and marks body part used
     {
@@ -46,6 +58,11 @@ public class Lever : Interactable
             target.GetComponent<Animator>().SetBool("Closed", true);
             target2.GetComponent<Animator>().SetBool("Closed", true);
         }
+        if(type == LeverType.Bar)
+        {
+            target.GetComponent<Animator>().SetBool("Retract", true);
+            target2.GetComponent<BarredRoomManager>().mainBar(true, registerNumber);
+        }
         inMotion = false;
     }
     public void closeDoor()
@@ -59,6 +76,11 @@ public class Lever : Interactable
         {
             target.GetComponent<Animator>().SetBool("Closed", false);
             target2.GetComponent<Animator>().SetBool("Closed", false);
+        }
+        if (type == LeverType.Bar)
+        {
+            target.GetComponent<Animator>().SetBool("Retract", false);
+            target2.GetComponent<BarredRoomManager>().mainBar(false, registerNumber);
         }
         inMotion = false;
     }
