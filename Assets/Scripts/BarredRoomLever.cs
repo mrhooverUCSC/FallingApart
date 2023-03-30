@@ -15,6 +15,10 @@ public class BarredRoomLever : Interactable
 
     public void Start()
     {
+        if (startActivated)
+        {
+            interact();
+        }
     }
 
     public override void interact() //move lever, if not in use, and marks body part used

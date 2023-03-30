@@ -25,7 +25,6 @@ public class Lever : Interactable
     {
         if (startActivated)
         {
-            Debug.Log("hi");
             interact();
         }
     }
